@@ -44,15 +44,14 @@ public class Bomba{
 					//System.out.println("Agua");
 					caldeira.addAgua();
 					try{
-						Thread.sleep(1000);
+					//	Thread.sleep(1000);
 					}
 					catch(Exception e){
 						
-					}
-				
-					
+					}	
 				}
 			}
+			
 		};
 		
 		return th;							
