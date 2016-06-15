@@ -1,9 +1,9 @@
 import javax.realtime.*;
 
 public class Caldeira {
-	private double nivelAgua=0;
-	private double vazaoAgua = 3,vazaoVapor = 1.4, medicaoSensorAgua=0;
-	
+	private double nivelAgua=10000;
+	private double vazaoAgua = 100,vazaoVapor = 5.4, medicaoSensorAgua=10000, vazaoValvula=1000;
+	private int contadorExplosao = 0;
 	
 	RealtimeThread sensorAgua(){
 		
@@ -36,8 +36,12 @@ public class Caldeira {
 		return medicaoSensorAgua;
 	}
 	
-	public synchronized void  addAgua(){
-		nivelAgua += vazaoAgua;
+	public synchronized void  addAgua(int mult){
+		nivelAgua += vazaoAgua*mult;
+	}
+	
+	public synchronized void  ligarValvula(){
+		nivelAgua -= vazaoValvula;
 	}
 	
 	synchronized Thread  vapor(){
@@ -45,7 +49,27 @@ public class Caldeira {
 		Thread rt = new Thread(){
 			public void run(){
 				while(true){
-					nivelAgua -=vazaoVapor;
+					try
+					{
+						Thread.sleep(10);
+					}
+					catch (Exception e)
+					{
+						System.out.println("Erro na thread da CALDEIRA.");
+					}
+					if (nivelAgua>vazaoVapor){
+						nivelAgua -=vazaoVapor;
+						
+					}
+					else{
+						contadorExplosao++;
+						if(contadorExplosao==2000000)
+						{
+							System.out.println("Caldeira explodiu. FIM.");
+							System.exit(0);
+						}
+						// Se não tem água, fica em 0
+					}
 				}
 			}
 			

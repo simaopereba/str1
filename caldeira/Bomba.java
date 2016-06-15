@@ -2,7 +2,10 @@ import javax.realtime.*;
 
 
 public class Bomba{
+	
+	boolean segundaBomba = false;
 	boolean continua = true;
+	boolean valvula = false;
 	private Caldeira caldeira;
 	
 	public Bomba(Caldeira c){
@@ -16,16 +19,36 @@ public class Bomba{
 		
 	}
 	
+	void ligarSegundaBomba(boolean b){
+		segundaBomba = b;
+	}
+	
+	void valvulaLigada(boolean b){
+		valvula = b;
+	}
+	
 	Thread encherDAgua(){
 		Thread th = new Thread(){
 			public void run(){
 				while(true){
 					//System.out.println("Agua");
-					if(continua)
-					caldeira.addAgua();
+					if(valvula){
+						caldeira.ligarValvula();
+					}
+					else{
+						
+						if(continua){
+							if(segundaBomba){
+								caldeira.addAgua(5);
+							}
+							else{
+								caldeira.addAgua(1);
+							}
+						}
+					}
 					
 					try{
-					//	Thread.sleep(1000);
+						Thread.sleep(400);
 					}
 					catch(Exception e){
 						
