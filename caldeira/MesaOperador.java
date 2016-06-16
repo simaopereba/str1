@@ -13,13 +13,18 @@ public class MesaOperador{
 		while(true){
 			switch(estado){
 				case(INIT):
-					System.out.println("INICIANDO BOMBA "+ c.getMedicaoAgua());	
+					System.out.println("\tINICIANDO BOMBA "+ c.getMedicaoAgua());	
 					try{
-					Thread.sleep(500);
+					
 					enc.start();
 					sen.start();
+					//Thread.sleep(24000);
+					while(c.getMedicaoAgua() < (limiteAguaInf + (limiteAguaInf * 0.5)   ));
+						
+					
 					esv.start();
 					estado = NORMAL;
+					System.out.println("PARA NORMAL COM NIVEL = "+ c.getMedicaoAgua());
 					}
 					catch(Exception e){
 						System.out.println("Errooou");
@@ -93,17 +98,20 @@ public class MesaOperador{
 				break;
 				case(STOP):
 					System.out.println("PARANDO A CALDEIRA, ELA PODE EXPLODIR!");
+					b.setON(false);
+					c.setON(false);
 					try{
 						enc.join();
 						esv.join();
-						System.exit(0);
-						sen.stop();
+						//System.exit(0);
+						//sen.stop();
+						
 					}
 					catch(Exception e){
 						System.out.println("DEU MERDA");
 					}
-					System.exit(0);
-					break ;
+					return ;//System.exit(0);
+					//break ;
 				
 						
 			}

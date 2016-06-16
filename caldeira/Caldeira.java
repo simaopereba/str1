@@ -1,36 +1,44 @@
 import javax.realtime.*;
 
 public class Caldeira {
-	private double nivelAgua=10000;
-	private double vazaoAgua = 100,vazaoVapor = 5.4, medicaoSensorAgua=10000, vazaoValvula=1000;
+	private double nivelAgua=0;
+	private double vazaoAgua = 100,vazaoVapor = 5.4, medicaoSensorAgua=nivelAgua, vazaoValvula=1000;
 	private int contadorExplosao = 0;
+	private boolean ON = true;
+	private boolean SensorON = true;
 	
-	RealtimeThread sensorAgua(){
-		
+	RealtimeThread sensorAgua(){		
 		int pri = 5;//PriorityScheduler.instance().getMinPriority() + 10;
 		PriorityParameters prip = new PriorityParameters(pri);		
 		/* period: 20ms */
 		RelativeTime period =
-		new RelativeTime(200 /* ms */, 0 /* ns */);
+		new RelativeTime(1000 /* ms */, 0 /* ns */);
+		
+		RelativeTime dead =
+		new RelativeTime(1 /* ms */, 0 /* ns */);
 		
 		/* release parameters for periodic thread: */
 		PeriodicParameters perp =
-		new PeriodicParameters(null, period, null, null, null, null);
+		new PeriodicParameters(null, period, null, dead, null, null);
 		
 		/* create periodic thread: */
-		RealtimeThread rt = new RealtimeThread(prip, perp){
+		return new RealtimeThread(prip, perp){
 			public void run(){
-				while (waitForNextPeriod() /*&& (n<it)*/){
-						System.out.println("NIVEL AGUA = "+nivelAgua);
+				while (waitForNextPeriod() && SensorON/*&& (n<it)*/){
+						System.out.print("\rNIVEL AGUA = "+nivelAgua+"\r");
 						medicaoSensorAgua = nivelAgua;
 				}
 			}	
 		};		
-		return rt;
-		
-		
-		
 	}
+	public void setSensorON(boolean b){
+		SensorON= b;
+	}
+	
+	
+	public void setON(boolean b){
+			ON = b;	
+		}
 	
 	public double getMedicaoAgua(){
 		return medicaoSensorAgua;
@@ -44,11 +52,12 @@ public class Caldeira {
 		nivelAgua -= vazaoValvula;
 	}
 	
-	synchronized Thread  vapor(){
-		
+	
+	
+	synchronized Thread  vapor(){		
 		Thread rt = new Thread(){
 			public void run(){
-				while(true){
+				while(ON){
 					try
 					{
 						Thread.sleep(10);

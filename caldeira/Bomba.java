@@ -7,6 +7,7 @@ public class Bomba{
 	boolean continua = true;
 	boolean valvula = false;
 	private Caldeira caldeira;
+	private boolean ON= true;
 	
 	public Bomba(Caldeira c){
 		this.caldeira=c;
@@ -26,11 +27,14 @@ public class Bomba{
 	void valvulaLigada(boolean b){
 		valvula = b;
 	}
+	public void setON(boolean b){
+			ON = b;	
+		}
 	
 	Thread encherDAgua(){
 		Thread th = new Thread(){
 			public void run(){
-				while(true){
+				while(ON){
 					//System.out.println("Agua");
 					if(valvula){
 						caldeira.ligarValvula();
