@@ -75,7 +75,7 @@ public class Bomba{
 		
 		/* period: 20ms */
 		RelativeTime period =
-		new RelativeTime(10000/* ms */, 0 /* ns */);
+		new RelativeTime(1000/* ms */, 0 /* ns */);
 		RelativeTime period2 =
 		new RelativeTime(5000/* ms */, 0 /* ns */);
 		
@@ -113,7 +113,7 @@ public class Bomba{
 		new RelativeTime(30000 /* ms */, 0 /* ns */);
 		
 		RelativeTime start =
-		new RelativeTime(7000 /* ms */, 0 /* ns */);
+		new RelativeTime(25000 /* ms */, 0 /* ns */);
 		
 		RelativeTime dead =
 		new RelativeTime(100 /* ms */, 0 /* ns */);
@@ -127,7 +127,7 @@ public class Bomba{
 			
 			public void run(){
 				int n=1;
-				while (waitForNextPeriod() /*&& (n<it)*/){
+				while (waitForNextPeriod()  &&ON/*&& (n<it)*/){
 					
 					
 					continua = !continua;

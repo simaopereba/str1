@@ -26,7 +26,7 @@ public class Caldeira {
 		return new RealtimeThread(prip, perp){
 			public void run(){
 				while (waitForNextPeriod() && SensorON/*&& (n<it)*/){
-			//			System.out.print("\rSENSOR DE AGUA:: NIVEL da AGUA = "+nivelAgua+"\r");
+						System.out.print("\rSENSOR DE AGUA:: NIVEL da AGUA = "+nivelAgua+"\r");
 						medicaoSensorAgua = nivelAgua;
 				}
 			}	
@@ -49,12 +49,16 @@ public class Caldeira {
 		nivelAgua += vazaoAgua*mult;
 	}
 	
-	public synchronized void  ligarValvula(){
+	public synchronized void  subAgua(){
+		nivelAgua -= vazaoVapor;
+	}
+	
+	public  synchronized void  ligarValvula(){
 		nivelAgua -= vazaoValvula;
 	}
 	
 		
-	synchronized Thread  vapor(){		
+	public Thread  vapor(){		
 		Thread rt = new Thread(){
 			public void run(){
 				while(ON){
@@ -66,11 +70,11 @@ public class Caldeira {
 					{
 						//System.out.println("Erro na thread da CALDEIRA.");
 					}
-				//	if (nivelAgua>vazaoVapor){
-						nivelAgua -=vazaoVapor;
-						
-				//	}
-				//	else{
+					if (nivelAgua>vazaoVapor){
+						//nivelAgua -=vazaoVapor;
+						subAgua();
+					}
+					else{
 						contadorExplosao++;
 						if(contadorExplosao==2000000)
 						{
@@ -78,7 +82,7 @@ public class Caldeira {
 							System.exit(0);
 						}
 						// Se não tem água, fica em 0
-					//}
+					}
 				}
 				return ;
 			}
@@ -89,14 +93,14 @@ public class Caldeira {
 	
 	
 	public Thread  erro(){
-		int pri = 11;//PriorityScheduler.instance().getMinPriority() + 10;
+		int pri = PriorityScheduler.instance().getMinPriority() + 10;
 		PriorityParameters prip = new PriorityParameters(pri);		
 		/* period: 20ms */
 		RelativeTime period =
 		new RelativeTime(20000 /* ms */, 0 /* ns */);
 		
 		RelativeTime start =
-		new RelativeTime(7000 /* ms */, 0 /* ns */);
+		new RelativeTime(20000 /* ms */, 0 /* ns */);
 		
 		RelativeTime dead =
 		new RelativeTime(100 /* ms */, 0 /* ns */);
@@ -108,12 +112,12 @@ public class Caldeira {
 		/* create periodic thread: */
 		return new RealtimeThread(prip, perp){
 			public void run(){
-				double incAgua;
+				int incAgua;
 				while (waitForNextPeriod() && (SensorON )){
 						
-						incAgua = r.nextInt(5000);
-						nivelAgua += incAgua;
-						System.out.print("\n\t\t\tERRR+"+incAgua +"  NIVEL D'AGUA \n");
+						incAgua = r.nextInt(100)+10;
+						addAgua(incAgua);
+						System.out.print("\n\t\t\tERRR+"+incAgua*vazaoAgua +"  NIVEL D'AGUA \n");
 												
 				}
 			}	
