@@ -1,4 +1,5 @@
 import javax.realtime.*;
+import java.util.Random;
 
 public class Caldeira {
 	private double nivelAgua=0;
@@ -8,7 +9,7 @@ public class Caldeira {
 	private boolean SensorON = true;
 	
 	RealtimeThread sensorAgua(){		
-		int pri = 5;//PriorityScheduler.instance().getMinPriority() + 10;
+		int pri = 11;//PriorityScheduler.instance().getMinPriority() + 10;
 		PriorityParameters prip = new PriorityParameters(pri);		
 		/* period: 20ms */
 		RelativeTime period =
@@ -25,7 +26,7 @@ public class Caldeira {
 		return new RealtimeThread(prip, perp){
 			public void run(){
 				while (waitForNextPeriod() && SensorON/*&& (n<it)*/){
-						System.out.print("\rNIVEL AGUA = "+nivelAgua+"\r");
+			//			System.out.print("\rSENSOR DE AGUA:: NIVEL da AGUA = "+nivelAgua+"\r");
 						medicaoSensorAgua = nivelAgua;
 				}
 			}	
@@ -52,8 +53,7 @@ public class Caldeira {
 		nivelAgua -= vazaoValvula;
 	}
 	
-	
-	
+		
 	synchronized Thread  vapor(){		
 		Thread rt = new Thread(){
 			public void run(){
@@ -64,13 +64,13 @@ public class Caldeira {
 					}
 					catch (Exception e)
 					{
-						System.out.println("Erro na thread da CALDEIRA.");
+						//System.out.println("Erro na thread da CALDEIRA.");
 					}
-					if (nivelAgua>vazaoVapor){
+				//	if (nivelAgua>vazaoVapor){
 						nivelAgua -=vazaoVapor;
 						
-					}
-					else{
+				//	}
+				//	else{
 						contadorExplosao++;
 						if(contadorExplosao==2000000)
 						{
@@ -78,39 +78,47 @@ public class Caldeira {
 							System.exit(0);
 						}
 						// Se não tem água, fica em 0
-					}
+					//}
 				}
+				return ;
 			}
 			
 		};
 		return rt;	
 	}
 	
-	RealtimeThread supervisionarbomba(){
-		
-		int pri = 2;//PriorityScheduler.instance().getMinPriority() + 10;
-		PriorityParameters prip = new PriorityParameters(pri);
-		
+	
+	public Thread  erro(){
+		int pri = 11;//PriorityScheduler.instance().getMinPriority() + 10;
+		PriorityParameters prip = new PriorityParameters(pri);		
 		/* period: 20ms */
 		RelativeTime period =
-		new RelativeTime(200/* ms */, 0 /* ns */);
+		new RelativeTime(20000 /* ms */, 0 /* ns */);
+		
+		RelativeTime start =
+		new RelativeTime(7000 /* ms */, 0 /* ns */);
+		
+		RelativeTime dead =
+		new RelativeTime(100 /* ms */, 0 /* ns */);
 		
 		/* release parameters for periodic thread: */
-		PeriodicParameters perp =
-		new PeriodicParameters(null, period, null, null, null, null);
-		
+		ReleaseParameters perp =
+		new PeriodicParameters(start,period,null, dead, null, null);
+		Random r = new Random();
 		/* create periodic thread: */
-		RealtimeThread rt = new RealtimeThread(prip, perp){
+		return new RealtimeThread(prip, perp){
 			public void run(){
-				int n=1;
-				while (waitForNextPeriod() /*&& (n<it)*/){
-					System.out.println("Supervisionar Bomba "+nivelAgua);
-					n++;
+				double incAgua;
+				while (waitForNextPeriod() && (SensorON )){
+						
+						incAgua = r.nextInt(5000);
+						nivelAgua += incAgua;
+						System.out.print("\n\t\t\tERRR+"+incAgua +"  NIVEL D'AGUA \n");
+												
 				}
-			}
+			}	
 		};		
-		return rt;
 		
 	}
-
+	
 }

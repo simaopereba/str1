@@ -8,6 +8,7 @@ public class Bomba{
 	boolean valvula = false;
 	private Caldeira caldeira;
 	private boolean ON= true;
+	private boolean status = true;
 	
 	public Bomba(Caldeira c){
 		this.caldeira=c;
@@ -58,6 +59,7 @@ public class Bomba{
 						
 					}	
 				}
+				return;
 			}
 			
 		};
@@ -65,8 +67,78 @@ public class Bomba{
 		return th;							
 	}
 
-	Thread sensorBomba(){
-		return null;
+	
+	RealtimeThread sensorBomba(){
+		
+		int pri = 5;//PriorityScheduler.instance().getMinPriority() + 10;
+		PriorityParameters prip = new PriorityParameters(pri);
+		
+		/* period: 20ms */
+		RelativeTime period =
+		new RelativeTime(10000/* ms */, 0 /* ns */);
+		RelativeTime period2 =
+		new RelativeTime(5000/* ms */, 0 /* ns */);
+		
+		/* release parameters for periodic thread: */
+		PeriodicParameters perp =
+		new PeriodicParameters(null, period, null, period2, null, null);
+		
+		/* create periodic thread: */
+		RealtimeThread rt = new RealtimeThread(prip, perp){
+			
+			public void run(){
+				int n=1;
+				while (waitForNextPeriod() /*&& (n<it)*/){
+					status = (ON && continua);
+				//	System.out.println("\nSENSOR BOMBA :: BOMBA LIGADA="+status);
+					
+				}
+			}
+		};		
+		return rt;
+		
 	}
 
+	
+	public boolean getBombState(){
+		return status;
+	}
+	
+	Thread erro(){
+		
+		int pri = 11;//PriorityScheduler.instance().getMinPriority() + 10;
+		PriorityParameters prip = new PriorityParameters(pri);
+		
+		RelativeTime period =
+		new RelativeTime(30000 /* ms */, 0 /* ns */);
+		
+		RelativeTime start =
+		new RelativeTime(7000 /* ms */, 0 /* ns */);
+		
+		RelativeTime dead =
+		new RelativeTime(100 /* ms */, 0 /* ns */);
+		
+		/* release parameters for periodic thread: */
+		ReleaseParameters perp =
+		new PeriodicParameters(start,period,null, dead, null, null);
+		
+		/* create periodic thread: */
+		RealtimeThread rt = new RealtimeThread(prip, perp){
+			
+			public void run(){
+				int n=1;
+				while (waitForNextPeriod() /*&& (n<it)*/){
+					
+					
+					continua = !continua;
+					System.out.println("\n\t\t\t ERRR NA BOMBA ligada="+continua);
+				}
+			}
+		};		
+		return rt;
+		
+	}
+
+	
+	
 }
